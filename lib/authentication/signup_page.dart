@@ -11,7 +11,7 @@ class SignUpPage extends StatefulWidget {
 class _LoginPageState extends State<SignUpPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _obscurePassword = true;
+  bool _obscurePassword = true; //Tobe used for password hiding
   @override
   Widget build(BuildContext context) {
     return Scaffold(
