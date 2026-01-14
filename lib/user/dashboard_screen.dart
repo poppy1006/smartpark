@@ -40,7 +40,7 @@ class _MapScreen1State extends State<UserDashboardPage> {
     super.dispose();
   }
 
-  /// 📡 FETCH PARKINGS FROM SUPABASE
+  ///  FETCH PARKINGS FROM SUPABASE
   Future<void> _fetchParkings() async {
     try {
       final response = await _supabase
@@ -63,7 +63,7 @@ class _MapScreen1State extends State<UserDashboardPage> {
     }
   }
 
-  /// 📍 LIVE LOCATION
+  /// LIVE LOCATION
   Future<void> _startLiveLocation() async {
     if (!await Geolocator.isLocationServiceEnabled()) {
       await Geolocator.openLocationSettings();
@@ -102,7 +102,7 @@ class _MapScreen1State extends State<UserDashboardPage> {
     }
   }
 
-  /// 🅿️ PARKING TAP
+  ///  PARKING TAP
   void _onParkingTap(ParkingModel parking) {
     showModalBottomSheet(
       context: context,
@@ -138,7 +138,7 @@ class _MapScreen1State extends State<UserDashboardPage> {
             mapController: _mapController,
             options: MapOptions(
               initialCenter: const LatLng(9.9312, 76.2673),
-              initialZoom: 40,
+              initialZoom: 18,
               onMapReady: () {
                 _mapReady = true;
                 if (_currentLocation != null) {
@@ -152,7 +152,7 @@ class _MapScreen1State extends State<UserDashboardPage> {
                 userAgentPackageName: 'com.parkingmanager.app',
               ),
 
-              /// 🔵 ACCURACY CIRCLE
+              ///  ACCURACY CIRCLE
               if (_currentLocation != null)
                 CircleLayer(
                   circles: [
@@ -167,7 +167,7 @@ class _MapScreen1State extends State<UserDashboardPage> {
                   ],
                 ),
 
-              /// 📍 MARKERS
+              ///  MARKERS
               MarkerLayer(
                 markers: [
                   ..._filteredParkings.map(
@@ -213,7 +213,7 @@ class _MapScreen1State extends State<UserDashboardPage> {
                     ),
                   ),
 
-                  /// 🔵 CURRENT LOCATION DOT
+                  ///  CURRENT LOCATION DOT
                   if (_currentLocation != null)
                     Marker(
                       point: _currentLocation!,
@@ -232,7 +232,7 @@ class _MapScreen1State extends State<UserDashboardPage> {
             ],
           ),
 
-          /// 📍 LOCATE BUTTON
+          ///  LOCATE BUTTON
           Positioned(
             bottom: 20,
             right: 20,
