@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:smartparking/parkingAdmin/dashboard_screen.dart';
+import 'package:smartparking/parkingAdmin/parking_form_page.dart';
 import 'package:smartparking/parkingAdmin/profile_page.dart';
+import 'package:smartparking/parkingAdmin/parking_form_page.dart';
+
 
 class ParkingAdminAppBar extends StatelessWidget {
   const ParkingAdminAppBar({super.key});
@@ -14,15 +18,35 @@ class ParkingAdminAppBar extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
+            // home button
             IconButton(
               icon: Icon(Icons.home, color: Colors.black),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ParkingAdminDashboard(),
+                  ),
+                );
+              },
             ),
-            FloatingActionButton(onPressed: () {}, child: Icon(Icons.qr_code_scanner)),
+            //+ button for adding a parking !
+            FloatingActionButton(
+              onPressed: () {
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const ParkingFormPage()));
+              },
+              child: Icon(Icons.add),
+            ),
             IconButton(
+              //Profile
               icon: Icon(Icons.account_circle_outlined, color: Colors.black),
               onPressed: () {
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const ParkingAdminProfile()));
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ParkingAdminProfile(),
+                  ),
+                );
               },
             ),
           ],
