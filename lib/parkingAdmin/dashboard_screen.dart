@@ -43,7 +43,7 @@ class _ParkingAdminDashboardState extends State<ParkingAdminDashboard> {
       /// Fetch parkings
       final parkingRes = await supabase
           .from('parkings')
-          .select('id, name')
+          .select('*')
           .eq('owner_id', userId);
 
       parkings = List<Map<String, dynamic>>.from(parkingRes);
@@ -224,7 +224,7 @@ class _ParkingAdminDashboardState extends State<ParkingAdminDashboard> {
                                         },
                                         icon: Icon(Icons.edit),
                                       ),
-                                      Icon(Icons.arrow_forward_ios, size: 16),
+                                      // Icon(Icons.arrow_forward_ios, size: 16),
                                     ],
                                   ),
                                   onTap: () {
@@ -245,5 +245,6 @@ class _ParkingAdminDashboardState extends State<ParkingAdminDashboard> {
 
 // Todo //
 // # Implement slots View/edit/delete //
-// #
+// # Implement parking delete
+
 
