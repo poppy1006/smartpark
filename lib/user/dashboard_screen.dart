@@ -361,7 +361,7 @@ class _MapScreen1State extends State<UserDashboardPage> {
     }
   }
 
-  /// PARKING TAP → BOTTOM SHEET
+  /// PARKING TAP → BOTTOM SHEET popup
   void _onParkingTap(ParkingModel parking) {
     showModalBottomSheet(
       context: context,
@@ -405,6 +405,7 @@ class _MapScreen1State extends State<UserDashboardPage> {
         backgroundColor: Colors.red,
         title: const Text("Smart Parking"),
       ),
+      
       body: Stack(
         children: [
           FlutterMap(

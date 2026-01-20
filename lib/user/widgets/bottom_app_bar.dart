@@ -43,6 +43,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:smartparking/user/dashboard_screen.dart';
+import 'package:smartparking/user/nearby_parking_page.dart';
 import 'package:smartparking/user/profile_page.dart';
 
 class UserBottomAppBar extends StatelessWidget {
@@ -69,7 +70,11 @@ class UserBottomAppBar extends StatelessWidget {
             // Serch nav
             IconButton(
               icon: const Icon(Icons.search),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushReplacement(context, 
+                MaterialPageRoute(builder: (_) => NearbyParkingsPage())
+                );
+              },
             ),
             // Profile nav
             IconButton(

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:smartparking/parkingAdmin/dashboard_screen.dart';
 import 'package:smartparking/parkingAdmin/widget/bottom_app_bar.dart';
-import 'package:smartparking/superAdmin/dashboard_screen.dart';
+// import 'package:smartparking/superAdmin/dashboard_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final supabase = Supabase.instance.client;
