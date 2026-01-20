@@ -28,7 +28,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   String _getInitial(String name) => name.isEmpty ? '?' : name[0].toUpperCase();
 
-  /// 🔹 Fetch profile from users table
+  ///  Fetch profile from users table
   Future<void> _fetchProfile() async {
     final user = _supabase.auth.currentUser;
     if (user == null) return;
@@ -47,7 +47,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
     });
   }
 
-  /// 🔹 Update profile
+  ///  Update profile
   Future<void> _updateProfile() async {
     if (_profile == null) return;
 
@@ -63,7 +63,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
     _fetchProfile();
   }
 
-  /// 🔹 Logout
+  ///  Logout
   Future<void> _logout() async {
     await _supabase.auth.signOut();
     Navigator.pushAndRemoveUntil(

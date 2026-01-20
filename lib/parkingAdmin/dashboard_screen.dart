@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:smartparking/parkingAdmin/parking_form_page.dart';
+import 'package:smartparking/parkingAdmin/parking_slots_page.dart';
+// import 'package:smartparking/parkingAdmin/parking_slots_page.dart';
+import 'package:smartparking/parkingAdmin/slot_form_page.dart';
 import 'package:smartparking/parkingAdmin/widget/bottom_app_bar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -120,6 +123,7 @@ class _ParkingAdminDashboardState extends State<ParkingAdminDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: _buildDrawer(context),
       appBar: AppBar(
         title: const Text('Parking Admin Dashboard'),
         backgroundColor: Colors.red,
@@ -228,7 +232,10 @@ class _ParkingAdminDashboardState extends State<ParkingAdminDashboard> {
                                     ],
                                   ),
                                   onTap: () {
-                                    // Implement slots 
+                                    // Implement slots here
+                                    Navigator.push(context, 
+                                    MaterialPageRoute(builder: (_) => ParkingSlotsPage(parkingId: parking['id'], parkingName: parking['name'])
+                                    ));
                                   },
                                 ),
                               );
@@ -243,8 +250,77 @@ class _ParkingAdminDashboardState extends State<ParkingAdminDashboard> {
 }
 
 
+//--------------Drawer----------------//
+
+Widget _buildDrawer(BuildContext context) {
+  final user = supabase.auth.currentUser;
+
+  return Drawer(
+    child: Column(
+      children: [
+        UserAccountsDrawerHeader(
+          decoration: const BoxDecoration(color: Colors.red),
+          accountName: const Text('Parking Admin'),
+          accountEmail: Text(user?.email ?? ''),
+          currentAccountPicture: const CircleAvatar(
+            backgroundColor: Colors.white,
+            child: Icon(Icons.person, color: Colors.red),
+          ),
+        ),
+
+        ListTile(
+          leading: const Icon(Icons.dashboard),
+          title: const Text('Dashboard'),
+          onTap: () {
+            Navigator.pop(context);
+          },
+        ),
+
+        ListTile(
+          leading: const Icon(Icons.add_location_alt),
+          title: const Text('Create Parking'),
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ParkingFormPage(),
+              ),
+            );
+          },
+        ),
+
+        ListTile(
+          leading: const Icon(Icons.price_change),
+          title: Text("Bookings"),
+          onTap: () {},
+        ),
+
+        const Divider(),
+
+        ListTile(
+          leading: const Icon(Icons.logout, color: Colors.red),
+          title: const Text('Logout'),
+          onTap: () async {
+            await supabase.auth.signOut();
+            if (context.mounted) {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                '/login',
+                (route) => false,
+              );
+            }
+          },
+        ),
+      ],
+    ),
+  );
+}
+
+
+
 // Todo //
 // # Implement slots View/edit/delete //
-// # Implement parking delete
+
+
 
 
