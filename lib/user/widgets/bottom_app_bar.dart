@@ -43,6 +43,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:smartparking/user/dashboard_screen.dart';
+import 'package:smartparking/user/my_bookings_page.dart';
 import 'package:smartparking/user/nearby_parking_page.dart';
 import 'package:smartparking/user/profile_page.dart';
 
@@ -73,6 +74,15 @@ class UserBottomAppBar extends StatelessWidget {
               onPressed: () {
                 Navigator.pushReplacement(context, 
                 MaterialPageRoute(builder: (_) => NearbyParkingsPage())
+                );
+              },
+            ),
+            // My Bookings
+            IconButton(
+              icon: const Icon(Icons.card_travel),
+              onPressed: () {
+                Navigator.pushReplacement(context, 
+                MaterialPageRoute(builder: (_) => const MyBookingsPage())
                 );
               },
             ),

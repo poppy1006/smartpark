@@ -194,6 +194,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:smartparking/user/available_slots_page.dart';
 import 'package:smartparking/user/widgets/bottom_app_bar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -230,7 +231,7 @@ class _NearbyParkingsPageState extends State<NearbyParkingsPage> {
     super.dispose();
   }
 
-  /// 🔹 MAIN INIT
+  ///  MAIN INIT
   Future<void> _init() async {
     try {
       await _getCurrentLocation();
@@ -250,14 +251,13 @@ class _NearbyParkingsPageState extends State<NearbyParkingsPage> {
     }
   }
 
-  /// 📍 GET LOCATION
+  ///  GET LOCATION
   Future<void> _getCurrentLocation() async {
     if (!await Geolocator.isLocationServiceEnabled()) {
       throw Exception('Location services disabled');
     }
 
-    LocationPermission permission =
-        await Geolocator.checkPermission();
+    LocationPermission permission = await Geolocator.checkPermission();
 
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -272,24 +272,20 @@ class _NearbyParkingsPageState extends State<NearbyParkingsPage> {
       desiredAccuracy: LocationAccuracy.high,
     );
 
-    _currentLocation =
-        LatLng(position.latitude, position.longitude);
+    _currentLocation = LatLng(position.latitude, position.longitude);
   }
 
-  /// 🅿️ FETCH PARKINGS
+  ///  FETCH PARKINGS
   Future<void> _fetchParkings() async {
     final res = await supabase
         .from('parkings')
-        .select(
-          'id, name, latitude, longitude, hourly_price',
-        )
+        .select('id, name, latitude, longitude, hourly_price')
         .eq('is_active', true);
 
-    _parkings =
-        (res as List).map((e) => ParkingModel.fromMap(e)).toList();
+    _parkings = (res as List).map((e) => ParkingModel.fromMap(e)).toList();
   }
 
-  /// ✅ COUNT FREE SLOTS
+  /// COUNT FREE SLOTS
   Future<void> _attachAvailableSlots() async {
     if (_parkings.isEmpty) return;
 
@@ -313,7 +309,7 @@ class _NearbyParkingsPageState extends State<NearbyParkingsPage> {
     }
   }
 
-  /// 📏 SORT BY DISTANCE
+  /// SORT BY DISTANCE
   void _sortByDistance() {
     final distance = const Distance();
     _parkings.sort((a, b) {
@@ -323,7 +319,7 @@ class _NearbyParkingsPageState extends State<NearbyParkingsPage> {
     });
   }
 
-  /// 🔍 SEARCH FILTER
+  /// SEARCH FILTER
   void _filterParkings(String query) {
     if (_parkings.isEmpty) return;
 
@@ -334,13 +330,12 @@ class _NearbyParkingsPageState extends State<NearbyParkingsPage> {
 
     setState(() {
       _filteredParkings = _parkings
-          .where((p) =>
-              p.name.toLowerCase().contains(query.toLowerCase()))
+          .where((p) => p.name.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
 
-  /// 🧭 NAVIGATION
+  ///  NAVIGATION
   Future<void> _navigate(ParkingModel parking) async {
     final uri = Uri.parse(
       'https://www.google.com/maps/dir/?api=1&destination=${parking.latitude},${parking.longitude}',
@@ -366,128 +361,124 @@ class _NearbyParkingsPageState extends State<NearbyParkingsPage> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(child: Text(_error!))
-              : Column(
-                  children: [
-                    /// 🔍 SEARCH BAR
-                    Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: _filterParkings,
-                        decoration: InputDecoration(
-                          hintText: 'Search parking...',
-                          prefixIcon: const Icon(Icons.search),
-                          suffixIcon:
-                              _searchController.text.isNotEmpty
-                                  ? IconButton(
-                                      icon:
-                                          const Icon(Icons.clear),
-                                      onPressed: () {
-                                        setState(() {
-                                          _searchController.clear();
-                                          _filteredParkings = _parkings;
-                                        });
-                                      },
-                                    )
-                                  : null,
-                          filled: true,
-                          fillColor: Colors.grey.shade100,
-                          border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
+          ? Center(child: Text(_error!))
+          : Column(
+              children: [
+                /// SEARCH BAR
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: _filterParkings,
+                    decoration: InputDecoration(
+                      hintText: 'Search parking...',
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                setState(() {
+                                  _searchController.clear();
+                                  _filteredParkings = _parkings;
+                                });
+                              },
+                            )
+                          : null,
+                      filled: true,
+                      fillColor: Colors.grey.shade100,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
                       ),
                     ),
+                  ),
+                ),
 
-                    /// 🅿️ PARKING LIST
-                    Expanded(
-                      child: _filteredParkings.isEmpty
-                          ? const Center(
-                              child: Text(
-                                  'No parkings found'),
-                            )
-                          : ListView.builder(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12),
-                              itemCount:
-                                  _filteredParkings.length,
-                              itemBuilder:
-                                  (context, index) {
-                                final p =
-                                    _filteredParkings[index];
+                ///  PARKING LIST
+                Expanded(
+                  child: _filteredParkings.isEmpty
+                      ? const Center(child: Text('No parkings found'))
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          itemCount: _filteredParkings.length,
+                          itemBuilder: (context, index) {
+                            final p = _filteredParkings[index];
 
-                                return Card(
-                                  margin:
-                                      const EdgeInsets.only(
-                                          bottom: 12),
-                                  child: Padding(
-                                    padding:
-                                        const EdgeInsets.all(
-                                            14),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment
-                                              .start,
-                                      children: [
-                                        Text(
-                                          p.name,
-                                          style:
-                                              const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight:
-                                                FontWeight
-                                                    .bold,
-                                          ),
+                            return GestureDetector(
+                              child: Card(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(14),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        p.name,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
                                         ),
-                                        const SizedBox(
-                                            height: 4),
-                                        Text(
-                                          _distanceText(p),
-                                          style:
-                                              const TextStyle(
-                                                  color: Colors
-                                                      .grey),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        _distanceText(p),
+                                        style: const TextStyle(
+                                          color: Colors.grey,
                                         ),
-                                        const SizedBox(
-                                            height: 8),
-                                        Row(
-                                          children: [
-                                            Text(
-                                                '✅ ${p.availableSlots} slots'),
-                                            const SizedBox(
-                                                width: 16),
-                                            Text(
-                                                '₹${p.hourlyPrice}/hr'),
-                                          ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          Text('✅ ${p.availableSlots} slots'),
+                                          const SizedBox(width: 16),
+                                          Text('₹${p.hourlyPrice}/hr'),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 10),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: ElevatedButton.icon(
+                                          icon: const Icon(Icons.navigation),
+                                          label: const Text('Navigate'),
+                                          onPressed: () => _navigate(p),
                                         ),
-                                        const SizedBox(
-                                            height: 10),
-                                        SizedBox(
-                                          width:
-                                              double.infinity,
-                                          child:
-                                              ElevatedButton.icon(
-                                            icon: const Icon(
-                                                Icons
-                                                    .navigation),
-                                            label: const Text(
-                                                'Navigate'),
-                                            onPressed: () =>
-                                                _navigate(p),
-                                          ),
-                                        ),
-                                      ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              // Implement ontap function in gesture to click this card
+                              // onTap: () {
+                              //   Navigator.push(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //       builder: (_) => AvailableSlotsPage(
+                              //         parkingId: p.id,
+                              //         parkingName: p.name,
+                              //         hourlyPrice: p.hourlyPrice,
+                              //       ),
+                              //     ),
+                              //   );
+                              // },
+                              onTap: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => AvailableSlotsPage(
+                                      parkingId: p.id,
+                                      parkingName: p.name,
+                                      hourlyPrice: p.hourlyPrice,
                                     ),
                                   ),
                                 );
                               },
-                            ),
-                    ),
-                  ],
+                            );
+                          },
+                        ),
                 ),
+              ],
+            ),
     );
   }
 }
