@@ -55,33 +55,33 @@ class _AvailableSlotsPageState extends State<AvailableSlotsPage> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _slots.isEmpty
-              ? const Center(child: Text('No slots available'))
-              : ListView.builder(
-                  itemCount: _slots.length,
-                  itemBuilder: (context, index) {
-                    final slot = _slots[index];
+          ? const Center(child: Text('No slots available'))
+          : ListView.builder(
+              itemCount: _slots.length,
+              itemBuilder: (context, index) {
+                final slot = _slots[index];
 
-                    return ListTile(
-                      leading: const Icon(Icons.local_parking),
-                      title: Text('Slot ${slot['slot_code']}'),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => BookingDetailsPage(
-                              parkingId: widget.parkingId,
-                              parkingName: widget.parkingName,
-                              slotId: slot['id'],
-                              slotCode: slot['slot_code'],
-                              hourlyPrice: widget.hourlyPrice,
-                            ),
-                          ),
-                        );
-                      },
+                return ListTile(
+                  leading: const Icon(Icons.local_parking),
+                  title: Text('Slot ${slot['slot_code']}'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BookingDetailsPage(
+                          parkingId: widget.parkingId,
+                          parkingName: widget.parkingName,
+                          slotId: slot['id'],
+                          slotCode: slot['slot_code'],
+                          hourlyPrice: widget.hourlyPrice,
+                        ),
+                      ),
                     );
                   },
-                ),
+                );
+              },
+            ),
     );
   }
 }

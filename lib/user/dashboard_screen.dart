@@ -257,6 +257,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:smartparking/user/widgets/bottom_app_bar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:smartparking/models/parking_model.dart';
+import 'package:smartparking/user/my_bookings_page.dart';
 
 final _supabase = Supabase.instance.client;
 
@@ -277,8 +278,9 @@ class _MapScreen1State extends State<UserDashboardPage> {
   List<ParkingModel> _filteredParkings = [];
   bool _isLoading = true;
 
-  /// 🔥 Track expanded marker
-  ParkingModel? _expandedParking;
+  /// 🔥 QR TIMER
+  DateTime? _qrExpiresAt;
+  Timer? _qrTimer;
 
   @override
   void initState() {
@@ -286,15 +288,56 @@ class _MapScreen1State extends State<UserDashboardPage> {
     _mapController = MapController();
     _startLiveLocation();
     _fetchParkings();
+    _fetchActiveQr();
   }
 
   @override
   void dispose() {
     _positionStream?.cancel();
+    _qrTimer?.cancel();
     super.dispose();
   }
 
-  /// FETCH PARKINGS
+  // --------------------------------------------------
+  // FETCH ACTIVE ENTRY QR
+  // --------------------------------------------------
+  Future<void> _fetchActiveQr() async {
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) return;
+
+    final res = await _supabase
+        .from('bookings')
+        .select('qr_expires_at')
+        .eq('user_id', userId)
+        .eq('status', 'pending')
+        .order('created_at', ascending: false)
+        .limit(1)
+        .maybeSingle();
+
+    if (res != null && res['qr_expires_at'] != null) {
+      _qrExpiresAt =
+          DateTime.parse(res['qr_expires_at']).toLocal();
+
+      _qrTimer?.cancel();
+      _qrTimer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) => setState(() {}),
+      );
+    }
+  }
+
+  // --------------------------------------------------
+  // FORMAT COUNTDOWN
+  // --------------------------------------------------
+  String _formatCountdown(Duration d) {
+    final m = d.inMinutes;
+    final s = d.inSeconds % 60;
+    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+  }
+
+  // --------------------------------------------------
+  // FETCH PARKINGS
+  // --------------------------------------------------
   Future<void> _fetchParkings() async {
     try {
       final response = await _supabase
@@ -312,27 +355,25 @@ class _MapScreen1State extends State<UserDashboardPage> {
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint('Error fetching parkings: $e');
       setState(() => _isLoading = false);
     }
   }
 
-  /// LIVE LOCATION
+  // --------------------------------------------------
+  // LIVE LOCATION
+  // --------------------------------------------------
   Future<void> _startLiveLocation() async {
-    if (!await Geolocator.isLocationServiceEnabled()) {
-      await Geolocator.openLocationSettings();
-      return;
-    }
+    if (!await Geolocator.isLocationServiceEnabled()) return;
 
-    LocationPermission permission = await Geolocator.checkPermission();
+    LocationPermission permission =
+        await Geolocator.checkPermission();
+
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
 
     if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-      return;
-    }
+        permission == LocationPermission.deniedForever) return;
 
     _positionStream =
         Geolocator.getPositionStream(
@@ -361,62 +402,40 @@ class _MapScreen1State extends State<UserDashboardPage> {
     }
   }
 
-  /// PARKING TAP → BOTTOM SHEET popup
-  void _onParkingTap(ParkingModel parking) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              parking.name,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: () {},
-                child: const Text("Book Parking"),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
+  // --------------------------------------------------
+  // UI
+  // --------------------------------------------------
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final remaining = _qrExpiresAt != null
+        ? _qrExpiresAt!.difference(now)
+        : null;
+
+    final showQrTimer =
+        remaining != null && remaining.inSeconds > 0;
+
     return Scaffold(
       bottomNavigationBar: const UserBottomAppBar(),
       appBar: AppBar(
         backgroundColor: Colors.red,
         title: const Text("Smart Parking"),
       ),
-      
       body: Stack(
         children: [
+          //------------------------------------------------
+          // MAP
+          //------------------------------------------------
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
               initialCenter: const LatLng(9.9312, 76.2673),
-              initialZoom: 5, // was 18
+              initialZoom: 5,
               onMapReady: () {
                 _mapReady = true;
                 if (_currentLocation != null) {
-                  _mapController.move(_currentLocation!, 16);
+                  _mapController.move(
+                      _currentLocation!, 16);
                 }
               },
             ),
@@ -428,7 +447,6 @@ class _MapScreen1State extends State<UserDashboardPage> {
                     'com.parkingmanager.app',
               ),
 
-              /// ACCURACY CIRCLE
               if (_currentLocation != null)
                 CircleLayer(
                   circles: [
@@ -436,7 +454,8 @@ class _MapScreen1State extends State<UserDashboardPage> {
                       point: _currentLocation!,
                       radius: 60,
                       useRadiusInMeter: true,
-                      color: Colors.blue.withOpacity(0.15),
+                      color:
+                          Colors.blue.withOpacity(0.15),
                       borderColor:
                           Colors.blue.withOpacity(0.4),
                       borderStrokeWidth: 2,
@@ -444,80 +463,50 @@ class _MapScreen1State extends State<UserDashboardPage> {
                   ],
                 ),
 
-              /// MARKERS
               MarkerLayer(
                 markers: [
                   ..._filteredParkings.map(
                     (parking) => Marker(
                       point: parking.latLng,
-                      width: 200,
+                      width: 120,
                       height: 120,
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _expandedParking =
-                                _expandedParking?.id ==
-                                        parking.id
-                                    ? null
-                                    : parking;
-                          });
-
-                          _onParkingTap(parking);
-                        },
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            AnimatedContainer(
-                              duration: const Duration(
-                                  milliseconds: 200),
-                              constraints: BoxConstraints(
-                                maxWidth:
-                                    _expandedParking?.id ==
-                                            parking.id
-                                        ? 180
-                                        : 100,
-                              ),
-                              padding:
-                                  const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius:
-                                    BorderRadius.circular(8),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.black26,
-                                    blurRadius: 4,
-                                  ),
-                                ],
-                              ),
-                              child: Text(
-                                parking.name,
-                                maxLines:
-                                    _expandedParking?.id ==
-                                            parking.id
-                                        ? 3
-                                        : 1,
-                                overflow:
-                                    TextOverflow.ellipsis,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
+                      child: Column(
+                        children: [
+                          Container(
+                            padding:
+                                const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius:
+                                  BorderRadius.circular(8),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 4,
                                 ),
-                              ),
+                              ],
                             ),
-                            const Icon(
-                              Icons.location_pin,
-                              color: Colors.red,
-                              size: 40,
+                            child: Text(
+                              parking.name,
+                              maxLines: 1,
+                              overflow:
+                                  TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight:
+                                      FontWeight.w600),
                             ),
-                          ],
-                        ),
+                          ),
+                          const Icon(
+                            Icons.location_pin,
+                            color: Colors.red,
+                            size: 40,
+                          ),
+                        ],
                       ),
                     ),
                   ),
 
-                  /// CURRENT LOCATION DOT
                   if (_currentLocation != null)
                     Marker(
                       point: _currentLocation!,
@@ -528,7 +517,8 @@ class _MapScreen1State extends State<UserDashboardPage> {
                           color: Colors.blue,
                           shape: BoxShape.circle,
                           border: Border.all(
-                              color: Colors.white, width: 3),
+                              color: Colors.white,
+                              width: 3),
                         ),
                       ),
                     ),
@@ -537,7 +527,58 @@ class _MapScreen1State extends State<UserDashboardPage> {
             ],
           ),
 
-          /// LOCATE BUTTON
+          //------------------------------------------------
+          // FLOATING QR TIMER
+          //------------------------------------------------
+          if (showQrTimer)
+            Positioned(
+              top: 12,
+              left: 16,
+              right: 16,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) =>
+                            const MyBookingsPage()),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.black87,
+                    borderRadius:
+                        BorderRadius.circular(30),
+                  ),
+                  child: Row(
+                    mainAxisAlignment:
+                        MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "ENTRY QR expires in",
+                        style:
+                            TextStyle(color: Colors.white),
+                      ),
+                      Text(
+                        _formatCountdown(remaining),
+                        style: const TextStyle(
+                          color: Colors.greenAccent,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const Icon(Icons.qr_code,
+                          color: Colors.white),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+          //------------------------------------------------
+          // LOCATE BUTTON
+          //------------------------------------------------
           Positioned(
             bottom: 20,
             right: 20,

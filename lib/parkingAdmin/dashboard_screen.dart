@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smartparking/parkingAdmin/parking_form_page.dart';
+import 'package:smartparking/parkingAdmin/parking_manager_page.dart';
 import 'package:smartparking/parkingAdmin/parking_slots_page.dart';
 // import 'package:smartparking/parkingAdmin/parking_slots_page.dart';
 import 'package:smartparking/parkingAdmin/slot_form_page.dart';
@@ -294,6 +295,19 @@ Widget _buildDrawer(BuildContext context) {
           leading: const Icon(Icons.price_change),
           title: Text("Bookings"),
           onTap: () {},
+        ),
+        ListTile(
+          // leading: const Icon(),
+          title: Text("Add Manager"),
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ManageParkingManagersPage(),
+              ),
+            );
+          },
         ),
 
         const Divider(),

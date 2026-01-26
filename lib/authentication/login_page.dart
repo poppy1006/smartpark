@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smartparking/parkingAdmin/dashboard_screen.dart';
+import 'package:smartparking/parkingmanager/dashboard_screen.dart';
 import 'package:smartparking/superAdmin/dashboard_screen.dart';
 import 'package:smartparking/user/dashboard_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -71,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
       } else if (role == 'parking_manager') {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const ParkingAdminDashboard()), 
+          MaterialPageRoute(builder: (_) => const ParkingManagerDasgboard()), 
         );
       } else if (role == 'parking_admin') {
         Navigator.pushReplacement(

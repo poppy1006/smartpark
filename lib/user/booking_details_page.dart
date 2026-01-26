@@ -58,7 +58,7 @@ class BookingDetailsPage extends StatelessWidget {
                       builder: (_) => DummyPaymentPage(
                         parkingId: parkingId,
                         slotId: slotId,
-                        amount: advanceAmount,
+                        // amount: advanceAmount,
                       ),
                     ),
                   );
