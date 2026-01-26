@@ -72,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
       } else if (role == 'parking_manager') {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const ParkingManagerDasgboard()), 
+          MaterialPageRoute(builder: (_) => const ParkingManagerDashboard()), 
         );
       } else if (role == 'parking_admin') {
         Navigator.pushReplacement(
