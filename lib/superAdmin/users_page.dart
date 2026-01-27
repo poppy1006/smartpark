@@ -21,9 +21,7 @@ class _UsersPageState extends State<UsersPage> {
     _loadUsers();
   }
 
-  // --------------------------------------------------
   // LOAD USERS
-  // --------------------------------------------------
   Future<void> _loadUsers() async {
     setState(() => loading = true);
 
@@ -46,15 +44,10 @@ class _UsersPageState extends State<UsersPage> {
     }
   }
 
-  // --------------------------------------------------
   // TOGGLE ACTIVE
-  // --------------------------------------------------
   Future<void> _toggleActive(String id, bool active) async {
     try {
-      await supabase
-          .from('users')
-          .update({'is_active': !active})
-          .eq('id', id);
+      await supabase.from('users').update({'is_active': !active}).eq('id', id);
 
       _loadUsers();
     } catch (e) {
@@ -62,9 +55,7 @@ class _UsersPageState extends State<UsersPage> {
     }
   }
 
-  // --------------------------------------------------
   // CHANGE ROLE
-  // --------------------------------------------------
   Future<void> _changeRole(String id, String role) async {
     try {
       await supabase.from('users').update({'role': role}).eq('id', id);
@@ -74,9 +65,7 @@ class _UsersPageState extends State<UsersPage> {
     }
   }
 
-  // --------------------------------------------------
   // DELETE USER
-  // --------------------------------------------------
   Future<void> _deleteUser(String id) async {
     try {
       await supabase.from('users').delete().eq('id', id);
@@ -86,13 +75,10 @@ class _UsersPageState extends State<UsersPage> {
     }
   }
 
-  // --------------------------------------------------
   void _show(String msg) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
-  // --------------------------------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,8 +89,7 @@ class _UsersPageState extends State<UsersPage> {
 
       body: Column(
         children: [
-
-          // ---------------- FILTER ----------------
+          // FILTER
           Padding(
             padding: const EdgeInsets.all(12),
             child: DropdownButtonFormField(
@@ -117,12 +102,17 @@ class _UsersPageState extends State<UsersPage> {
                 DropdownMenuItem(value: 'all', child: Text("All")),
                 DropdownMenuItem(value: 'user', child: Text("User")),
                 DropdownMenuItem(
-                    value: 'parking_admin', child: Text("Parking Admin")),
+                  value: 'parking_admin',
+                  child: Text("Parking Admin"),
+                ),
                 DropdownMenuItem(
-                    value: 'parking_manager',
-                    child: Text("Parking Manager")),
+                  value: 'parking_manager',
+                  child: Text("Parking Manager"),
+                ),
                 DropdownMenuItem(
-                    value: 'super_admin', child: Text("Super Admin")),
+                  value: 'super_admin',
+                  child: Text("Super Admin"),
+                ),
               ],
               onChanged: (v) {
                 setState(() => roleFilter = v!);
@@ -131,81 +121,80 @@ class _UsersPageState extends State<UsersPage> {
             ),
           ),
 
-          // ---------------- LIST ----------------
+          // LIST
           Expanded(
             child: loading
                 ? const Center(child: CircularProgressIndicator())
                 : users.isEmpty
-                    ? const Center(child: Text("No users found"))
-                    : ListView.builder(
-                        itemCount: users.length,
-                        itemBuilder: (_, i) {
-                          final u = users[i];
+                ? const Center(child: Text("No users found"))
+                : ListView.builder(
+                    itemCount: users.length,
+                    itemBuilder: (_, i) {
+                      final u = users[i];
 
-                          return Card(
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 6),
-                            child: ListTile(
-                              leading: const Icon(Icons.person),
-                              title: Text(u['email']),
-                              subtitle: Text("Role: ${u['role']}"),
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        child: ListTile(
+                          leading: const Icon(Icons.person),
+                          title: Text(u['email']),
+                          subtitle: Text("Role: ${u['role']}"),
 
-                              // -------- ACTIONS --------
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
+                          // ACTIONS
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // ACTIVE SWITCH
+                              Switch(
+                                value: u['is_active'] ?? true,
+                                onChanged: (_) =>
+                                    _toggleActive(u['id'], u['is_active']),
+                              ),
 
-                                  // ACTIVE SWITCH
-                                  Switch(
-                                    value: u['is_active'] ?? true,
-                                    onChanged: (_) => _toggleActive(
-                                      u['id'],
-                                      u['is_active'],
-                                    ),
+                              // MENU
+                              PopupMenuButton<String>(
+                                onSelected: (v) {
+                                  if (v == 'delete') {
+                                    _deleteUser(u['id']);
+                                  } else {
+                                    _changeRole(u['id'], v);
+                                  }
+                                },
+                                itemBuilder: (_) => const [
+                                  PopupMenuItem(
+                                    value: 'user',
+                                    child: Text("Set User"),
                                   ),
-
-                                  // MENU
-                                  PopupMenuButton<String>(
-                                    onSelected: (v) {
-                                      if (v == 'delete') {
-                                        _deleteUser(u['id']);
-                                      } else {
-                                        _changeRole(u['id'], v);
-                                      }
-                                    },
-                                    itemBuilder: (_) => const [
-                                      PopupMenuItem(
-                                          value: 'user',
-                                          child: Text("Set User")),
-                                      PopupMenuItem(
-                                          value: 'parking_admin',
-                                          child:
-                                              Text("Set Parking Admin")),
-                                      PopupMenuItem(
-                                          value: 'parking_manager',
-                                          child: Text(
-                                              "Set Parking Manager")),
-                                      PopupMenuItem(
-                                          value: 'super_admin',
-                                          child:
-                                              Text("Set Super Admin")),
-                                      PopupMenuDivider(),
-                                      PopupMenuItem(
-                                        value: 'delete',
-                                        child: Text(
-                                          "Delete User",
-                                          style:
-                                              TextStyle(color: Colors.red),
-                                        ),
-                                      ),
-                                    ],
+                                  PopupMenuItem(
+                                    value: 'parking_admin',
+                                    child: Text("Set Parking Admin"),
+                                  ),
+                                  PopupMenuItem(
+                                    value: 'parking_manager',
+                                    child: Text("Set Parking Manager"),
+                                  ),
+                                  PopupMenuItem(
+                                    value: 'super_admin',
+                                    child: Text("Set Super Admin"),
+                                  ),
+                                  PopupMenuDivider(),
+                                  PopupMenuItem(
+                                    value: 'delete',
+                                    child: Text(
+                                      "Delete User",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
                                   ),
                                 ],
                               ),
-                            ),
-                          );
-                        },
-                      ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),

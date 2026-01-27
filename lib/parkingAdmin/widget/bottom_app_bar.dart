@@ -4,7 +4,6 @@ import 'package:smartparking/parkingAdmin/parking_form_page.dart';
 import 'package:smartparking/parkingAdmin/profile_page.dart';
 import 'package:smartparking/parkingAdmin/parking_form_page.dart';
 
-
 class ParkingAdminAppBar extends StatelessWidget {
   const ParkingAdminAppBar({super.key});
 
@@ -33,7 +32,10 @@ class ParkingAdminAppBar extends StatelessWidget {
             //+ button for adding a parking !
             FloatingActionButton(
               onPressed: () {
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const ParkingFormPage()));
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ParkingFormPage()),
+                );
               },
               child: Icon(Icons.add),
             ),

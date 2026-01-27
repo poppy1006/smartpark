@@ -11,8 +11,7 @@ class ManageParkingManagersPage extends StatefulWidget {
       _ManageParkingManagersPageState();
 }
 
-class _ManageParkingManagersPageState
-    extends State<ManageParkingManagersPage> {
+class _ManageParkingManagersPageState extends State<ManageParkingManagersPage> {
   bool _loading = true;
   bool _creating = false;
 
@@ -24,9 +23,7 @@ class _ManageParkingManagersPageState
     _loadManagers();
   }
 
-  // ------------------------------------------------
-  // LOAD MANAGERS
-  // ------------------------------------------------
+  // FETCH AND LOAD MANAGERS //
   Future<void> _loadManagers() async {
     setState(() => _loading = true);
 
@@ -45,9 +42,7 @@ class _ManageParkingManagersPageState
     });
   }
 
-  // ------------------------------------------------
-  // CREATE MANAGER (EDGE FUNCTION)
-  // ------------------------------------------------
+  // CREATE MANAGER (USING SUPABASE EDGE FUNCTION) //
   void _showAddManagerDialog() {
     final nameCtrl = TextEditingController();
     final emailCtrl = TextEditingController();
@@ -64,32 +59,27 @@ class _ManageParkingManagersPageState
             children: [
               TextField(
                 controller: nameCtrl,
-                decoration:
-                    const InputDecoration(labelText: "Full Name"),
+                decoration: const InputDecoration(labelText: "Full Name"),
               ),
               TextField(
                 controller: emailCtrl,
-                decoration:
-                    const InputDecoration(labelText: "Email"),
+                decoration: const InputDecoration(labelText: "Email"),
               ),
               TextField(
                 controller: phoneCtrl,
-                decoration:
-                    const InputDecoration(labelText: "Phone"),
+                decoration: const InputDecoration(labelText: "Phone"),
               ),
               TextField(
                 controller: passwordCtrl,
                 obscureText: true,
-                decoration:
-                    const InputDecoration(labelText: "Password"),
+                decoration: const InputDecoration(labelText: "Password"),
               ),
             ],
           ),
         ),
         actions: [
           TextButton(
-            onPressed:
-                _creating ? null : () => Navigator.pop(context),
+            onPressed: _creating ? null : () => Navigator.pop(context),
             child: const Text("Cancel"),
           ),
           ElevatedButton(
@@ -99,11 +89,9 @@ class _ManageParkingManagersPageState
                     if (nameCtrl.text.isEmpty ||
                         emailCtrl.text.isEmpty ||
                         passwordCtrl.text.isEmpty) {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(
+                      ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text(
-                              "Name, Email and Password required"),
+                          content: Text("Name, Email and Password required"),
                         ),
                       );
                       return;
@@ -112,14 +100,12 @@ class _ManageParkingManagersPageState
                     setState(() => _creating = true);
 
                     try {
-                      final session =
-                          supabase.auth.currentSession!;
+                      final session = supabase.auth.currentSession!;
 
                       await supabase.functions.invoke(
                         'create_parking_manager',
                         headers: {
-                          "Authorization":
-                              "Bearer ${session.accessToken}",
+                          "Authorization": "Bearer ${session.accessToken}",
                         },
                         body: {
                           "name": nameCtrl.text.trim(),
@@ -134,17 +120,15 @@ class _ManageParkingManagersPageState
                       Navigator.pop(context);
                       await _loadManagers();
 
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(
+                      ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                            content:
-                                Text("Manager created successfully")),
+                          content: Text("Manager created successfully"),
+                        ),
                       );
                     } catch (e) {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(
-                        SnackBar(content: Text(e.toString())),
-                      );
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text(e.toString())));
                     } finally {
                       setState(() => _creating = false);
                     }
@@ -165,14 +149,10 @@ class _ManageParkingManagersPageState
     );
   }
 
-  // ------------------------------------------------
-  // EDIT MANAGER
-  // ------------------------------------------------
+  // EDIT MANAGER //
   void _showEditManagerDialog(Map manager) {
-    final nameCtrl =
-        TextEditingController(text: manager['full_name'] ?? '');
-    final phoneCtrl =
-        TextEditingController(text: manager['phone'] ?? '');
+    final nameCtrl = TextEditingController(text: manager['full_name'] ?? '');
+    final phoneCtrl = TextEditingController(text: manager['phone'] ?? '');
     bool isActive = manager['is_active'] ?? true;
 
     showDialog(
@@ -185,13 +165,11 @@ class _ManageParkingManagersPageState
             children: [
               TextField(
                 controller: nameCtrl,
-                decoration:
-                    const InputDecoration(labelText: "Full Name"),
+                decoration: const InputDecoration(labelText: "Full Name"),
               ),
               TextField(
                 controller: phoneCtrl,
-                decoration:
-                    const InputDecoration(labelText: "Phone"),
+                decoration: const InputDecoration(labelText: "Phone"),
               ),
               SwitchListTile(
                 value: isActive,
@@ -212,20 +190,20 @@ class _ManageParkingManagersPageState
                 Navigator.pop(context);
                 _confirmDelete(manager['id']);
               },
-              child: const Text(
-                "Delete",
-                style: TextStyle(color: Colors.red),
-              ),
+              child: const Text("Delete", style: TextStyle(color: Colors.red)),
             ),
 
             // UPDATE
             ElevatedButton(
               onPressed: () async {
-                await supabase.from('users').update({
-                  'full_name': nameCtrl.text.trim(),
-                  'phone': phoneCtrl.text.trim(),
-                  'is_active': isActive,
-                }).eq('id', manager['id']);
+                await supabase
+                    .from('users')
+                    .update({
+                      'full_name': nameCtrl.text.trim(),
+                      'phone': phoneCtrl.text.trim(),
+                      'is_active': isActive,
+                    })
+                    .eq('id', manager['id']);
 
                 if (!mounted) return;
 
@@ -240,38 +218,30 @@ class _ManageParkingManagersPageState
     );
   }
 
-  // ------------------------------------------------
   // DELETE MANAGER (EDGE FUNCTION)
-  // ------------------------------------------------
   void _confirmDelete(String managerId) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text("Delete Manager"),
         content: const Text(
-            "This will permanently delete the manager account."),
+          "This will permanently delete the manager account.",
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text("Cancel"),
           ),
           ElevatedButton(
-            style:
-                ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () async {
               try {
-                final session =
-                    supabase.auth.currentSession!;
+                final session = supabase.auth.currentSession!;
 
                 await supabase.functions.invoke(
                   'delete_parking_manager',
-                  headers: {
-                    "Authorization":
-                        "Bearer ${session.accessToken}",
-                  },
-                  body: {
-                    "manager_id": managerId,
-                  },
+                  headers: {"Authorization": "Bearer ${session.accessToken}"},
+                  body: {"manager_id": managerId},
                 );
 
                 if (!mounted) return;
@@ -280,14 +250,12 @@ class _ManageParkingManagersPageState
                 _loadManagers();
 
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content:
-                          Text("Manager deleted successfully")),
+                  const SnackBar(content: Text("Manager deleted successfully")),
                 );
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(e.toString())),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(e.toString())));
               }
             },
             child: const Text("Delete"),
@@ -297,9 +265,7 @@ class _ManageParkingManagersPageState
     );
   }
 
-  // ------------------------------------------------
-  // UI
-  // ------------------------------------------------
+  // UI CODE //
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -315,41 +281,38 @@ class _ManageParkingManagersPageState
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _managers.isEmpty
-              ? const Center(child: Text("No managers found"))
-              : ListView.builder(
-                  itemCount: _managers.length,
-                  itemBuilder: (context, index) {
-                    final m = _managers[index];
+          ? const Center(child: Text("No managers found"))
+          : ListView.builder(
+              itemCount: _managers.length,
+              itemBuilder: (context, index) {
+                final m = _managers[index];
 
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      child: ListTile(
-                        leading: const Icon(Icons.person),
-                        title: Text(m['full_name'] ?? ''),
-                        subtitle: Text(m['email']),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              m['is_active']
-                                  ? Icons.check_circle
-                                  : Icons.block,
-                              color: m['is_active']
-                                  ? Colors.green
-                                  : Colors.red,
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () =>
-                                  _showEditManagerDialog(m),
-                            ),
-                          ],
+                return Card(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  child: ListTile(
+                    leading: const Icon(Icons.person),
+                    title: Text(m['full_name'] ?? ''),
+                    subtitle: Text(m['email']),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          m['is_active'] ? Icons.check_circle : Icons.block,
+                          color: m['is_active'] ? Colors.green : Colors.red,
                         ),
-                      ),
-                    );
-                  },
-                ),
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () => _showEditManagerDialog(m),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
     );
   }
 }

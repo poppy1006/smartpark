@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:smartparking/parkingAdmin/dashboard_screen.dart';
 import 'package:smartparking/parkingAdmin/widget/bottom_app_bar.dart';
-// import 'package:smartparking/superAdmin/dashboard_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final supabase = Supabase.instance.client;
@@ -55,7 +54,7 @@ class _ParkingFormPageState extends State<ParkingFormPage> {
     super.dispose();
   }
 
-  /// GET CURRENT LOCATION
+  /// Get current location //
   Future<void> _getCurrentLocation() async {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) {
@@ -80,9 +79,9 @@ class _ParkingFormPageState extends State<ParkingFormPage> {
         _lngCtrl.text = position.longitude.toStringAsFixed(6);
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 
@@ -106,9 +105,9 @@ class _ParkingFormPageState extends State<ParkingFormPage> {
     final price = double.tryParse(_priceCtrl.text);
 
     if (lat == null || lng == null || price == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid numeric values')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Invalid numeric values')));
       setState(() => _loading = false);
       return;
     }
@@ -136,19 +135,22 @@ class _ParkingFormPageState extends State<ParkingFormPage> {
 
       if (mounted && Navigator.canPop(context)) {
         // Navigator.pop(context, true);
-        Navigator.push(context, MaterialPageRoute(builder: (_) =>  ParkingAdminDashboard()));
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => ParkingAdminDashboard()),
+        );
       }
     } catch (e) {
       debugPrint('SAVE ERROR: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to save parking')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Failed to save parking')));
     } finally {
       setState(() => _loading = false);
     }
   }
 
-  /// DELETE PARKING (EDIT ONLY)
+  /// DELETE PARKING (EDIT MODE ONLY)
   Future<void> _deleteParking() async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -165,12 +167,12 @@ class _ParkingFormPageState extends State<ParkingFormPage> {
           TextButton(
             // onPressed: () => Navigator.pop(context, true),
             onPressed: () {
-              Navigator.push(context,MaterialPageRoute(builder: (_) =>  ParkingAdminDashboard()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => ParkingAdminDashboard()),
+              );
             },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -179,19 +181,16 @@ class _ParkingFormPageState extends State<ParkingFormPage> {
     if (confirm != true) return;
 
     try {
-      await supabase
-          .from('parkings')
-          .delete()
-          .eq('id', widget.parking!['id']);
+      await supabase.from('parkings').delete().eq('id', widget.parking!['id']);
 
       if (mounted && Navigator.canPop(context)) {
         Navigator.pop(context, true);
       }
     } catch (e) {
       debugPrint('DELETE ERROR: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to delete parking')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Failed to delete parking')));
     }
   }
 
@@ -208,9 +207,7 @@ class _ParkingFormPageState extends State<ParkingFormPage> {
         validator: (v) => v == null || v.isEmpty ? 'Required' : null,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
         ),
       ),
     );
@@ -244,8 +241,7 @@ class _ParkingFormPageState extends State<ParkingFormPage> {
                 ),
               ),
 
-              _input('Hourly Price', _priceCtrl,
-                  type: TextInputType.number),
+              _input('Hourly Price', _priceCtrl, type: TextInputType.number),
 
               SwitchListTile(
                 value: _isActive,
@@ -268,10 +264,13 @@ class _ParkingFormPageState extends State<ParkingFormPage> {
                   ),
                   child: _loading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : Text(isEdit ? 'Update Parking' : 'Create Parking',style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900
-                      ),),
+                      : Text(
+                          isEdit ? 'Update Parking' : 'Create Parking',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
                 ),
               ),
 
@@ -291,7 +290,10 @@ class _ParkingFormPageState extends State<ParkingFormPage> {
                     ),
                     child: const Text(
                       'Delete Parking',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                   ),
                 ),

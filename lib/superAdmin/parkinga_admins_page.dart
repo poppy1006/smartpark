@@ -21,8 +21,10 @@ class _ParkingAdminsPageState extends State<ParkingAdminsPage> {
   }
 
   Future<void> _loadAdmins() async {
-    final res =
-        await supabase.from('users').select().eq('role', 'parking_admin');
+    final res = await supabase
+        .from('users')
+        .select()
+        .eq('role', 'parking_admin');
     setState(() => admins = res);
   }
 
@@ -47,8 +49,7 @@ class _ParkingAdminsPageState extends State<ParkingAdminsPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) =>
-                          AssignParkingPage(adminId: a['id']),
+                      builder: (_) => AssignParkingPage(adminId: a['id']),
                     ),
                   );
                 },

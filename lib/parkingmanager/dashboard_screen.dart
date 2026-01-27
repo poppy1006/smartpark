@@ -15,20 +15,16 @@ class ParkingManagerDashboard extends StatefulWidget {
       _ParkingManagerDashboardState();
 }
 
-class _ParkingManagerDashboardState
-    extends State<ParkingManagerDashboard> {
-
+class _ParkingManagerDashboardState extends State<ParkingManagerDashboard> {
   bool _processing = false;
   bool _permissionGranted = false;
 
-  // --------------------------------------------------
   @override
   void initState() {
     super.initState();
     _requestPermission();
   }
 
-  // --------------------------------------------------
   Future<void> _requestPermission() async {
     PermissionStatus status = await Permission.camera.status;
 
@@ -51,7 +47,6 @@ class _ParkingManagerDashboardState
     }
   }
 
-  // --------------------------------------------------
   Future<void> _handleQr(String qr) async {
     if (_processing) return;
     setState(() => _processing = true);
@@ -75,21 +70,19 @@ class _ParkingManagerDashboardState
 
       // ENTRY
       if (status == 'pending') {
-        await supabase.from('bookings').update({
-          'status': 'parked',
-          'start_time': now,
-          'qr_token': null,
-        }).eq('id', bookingId);
+        await supabase
+            .from('bookings')
+            .update({'status': 'parked', 'start_time': now, 'qr_token': null})
+            .eq('id', bookingId);
 
         _show("Vehicle Entered");
 
-      // EXIT
+        // EXIT
       } else if (status == 'exit_pending') {
-        await supabase.from('bookings').update({
-          'status': 'completed',
-          'end_time': now,
-          'qr_token': null,
-        }).eq('id', bookingId);
+        await supabase
+            .from('bookings')
+            .update({'status': 'completed', 'end_time': now, 'qr_token': null})
+            .eq('id', bookingId);
 
         await supabase
             .from('parking_slots')
@@ -97,7 +90,6 @@ class _ParkingManagerDashboardState
             .eq('id', slotId);
 
         _show("Vehicle Exited");
-
       } else {
         _show("QR not valid");
       }
@@ -109,13 +101,10 @@ class _ParkingManagerDashboardState
     }
   }
 
-  // --------------------------------------------------
   void _show(String msg) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
-  // --------------------------------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -152,13 +141,11 @@ class _ParkingManagerDashboardState
             )
           : Stack(
               children: [
-
                 MobileScanner(
                   onDetect: (capture) {
                     if (_processing) return;
 
-                    final code =
-                        capture.barcodes.first.rawValue;
+                    final code = capture.barcodes.first.rawValue;
 
                     if (code != null) {
                       _handleQr(code);
@@ -168,9 +155,7 @@ class _ParkingManagerDashboardState
 
                 // DARK LAYER
                 Positioned.fill(
-                  child: Container(
-                    color: Colors.black.withOpacity(0.35),
-                  ),
+                  child: Container(color: Colors.black.withOpacity(0.35)),
                 ),
 
                 // SCAN BOX
@@ -179,10 +164,7 @@ class _ParkingManagerDashboardState
                     width: 260,
                     height: 260,
                     decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.greenAccent,
-                        width: 3,
-                      ),
+                      border: Border.all(color: Colors.greenAccent, width: 3),
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
@@ -206,10 +188,8 @@ class _ParkingManagerDashboardState
 
                       if (_processing) ...[
                         const SizedBox(height: 12),
-                        const CircularProgressIndicator(
-                          color: Colors.white,
-                        )
-                      ]
+                        const CircularProgressIndicator(color: Colors.white),
+                      ],
                     ],
                   ),
                 ),

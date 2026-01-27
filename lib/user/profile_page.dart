@@ -164,7 +164,7 @@
 
 //             const Spacer(),
 
-//             /// Logout Button 
+//             /// Logout Button
 //             SizedBox(
 //               width: double.infinity,
 //               height: 50,
@@ -181,8 +181,6 @@
 //     );
 //   }
 // }
-
-
 
 import 'package:flutter/material.dart';
 import 'package:smartparking/authentication/login_page.dart';
@@ -211,11 +209,9 @@ class UserProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = Supabase.instance.client.auth.currentUser;
 
-    final name =
-        user?.userMetadata?['full_name'] ?? 'Parking Manager';
+    final name = user?.userMetadata?['full_name'] ?? 'Parking Manager';
     final email = user?.email ?? 'No email';
-    final role =
-        user?.userMetadata?['role'] ?? 'parking_manager';
+    final role = user?.userMetadata?['role'] ?? 'parking_manager';
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -223,14 +219,10 @@ class UserProfilePage extends StatelessWidget {
 
       body: Column(
         children: [
-
-          // ================= HEADER =================
+          // HEADER
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.only(
-              top: 60,
-              bottom: 40,
-            ),
+            padding: const EdgeInsets.only(top: 60, bottom: 40),
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [Colors.red, Colors.deepOrange],
@@ -244,7 +236,6 @@ class UserProfilePage extends StatelessWidget {
             ),
             child: Column(
               children: [
-
                 // Avatar
                 Container(
                   decoration: BoxDecoration(
@@ -254,7 +245,7 @@ class UserProfilePage extends StatelessWidget {
                         color: Colors.black26,
                         blurRadius: 10,
                         offset: Offset(0, 4),
-                      )
+                      ),
                     ],
                   ),
                   child: CircleAvatar(
@@ -288,7 +279,9 @@ class UserProfilePage extends StatelessWidget {
                 // Role Badge
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 6),
+                    horizontal: 14,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.25),
                     borderRadius: BorderRadius.circular(20),
@@ -308,7 +301,7 @@ class UserProfilePage extends StatelessWidget {
 
           const SizedBox(height: 30),
 
-          // ================= INFO CARD =================
+          // INFO CARD
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Card(
@@ -318,20 +311,14 @@ class UserProfilePage extends StatelessWidget {
               elevation: 4,
               child: Column(
                 children: [
-
-                  _infoTile(
-                    icon: Icons.email,
-                    label: "Email",
-                    value: email,
-                  ),
+                  _infoTile(icon: Icons.email, label: "Email", value: email),
 
                   const Divider(height: 1),
 
                   _infoTile(
                     icon: Icons.person,
                     label: "Role",
-                    value:
-                        role.replaceAll('_', ' ').toUpperCase(),
+                    value: role.replaceAll('_', ' ').toUpperCase(),
                   ),
                 ],
               ),
@@ -340,7 +327,7 @@ class UserProfilePage extends StatelessWidget {
 
           const Spacer(),
 
-          // ================= LOGOUT =================
+          // LOGOUT
           Padding(
             padding: const EdgeInsets.all(16),
             child: SizedBox(
@@ -348,10 +335,7 @@ class UserProfilePage extends StatelessWidget {
               height: 52,
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.logout),
-                label: const Text(
-                  "Logout",
-                  style: TextStyle(fontSize: 16),
-                ),
+                label: const Text("Logout", style: TextStyle(fontSize: 16)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   shape: RoundedRectangleBorder(
@@ -367,7 +351,7 @@ class UserProfilePage extends StatelessWidget {
     );
   }
 
-  // ================= REUSABLE TILE =================
+  // REUSABLE TILE
   Widget _infoTile({
     required IconData icon,
     required String label,
@@ -378,9 +362,7 @@ class UserProfilePage extends StatelessWidget {
       title: Text(label),
       subtitle: Text(
         value,
-        style: const TextStyle(
-          fontWeight: FontWeight.w600,
-        ),
+        style: const TextStyle(fontWeight: FontWeight.w600),
       ),
     );
   }

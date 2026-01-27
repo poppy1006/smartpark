@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:smartparking/parkingAdmin/parking_form_page.dart';
 import 'package:smartparking/parkingAdmin/parking_manager_page.dart';
 import 'package:smartparking/parkingAdmin/parking_slots_page.dart';
-// import 'package:smartparking/parkingAdmin/parking_slots_page.dart';
-import 'package:smartparking/parkingAdmin/slot_form_page.dart';
 import 'package:smartparking/parkingAdmin/widget/bottom_app_bar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -73,7 +71,7 @@ class _ParkingAdminDashboardState extends State<ParkingAdminDashboard> {
     }
   }
 
-  /// SEARCH FILTER
+  /// SEARCH FUNCTION ////
   void _filterParkings(String query) {
     if (query.isEmpty) {
       filteredParkings = parkings;
@@ -138,7 +136,7 @@ class _ParkingAdminDashboardState extends State<ParkingAdminDashboard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  /// STATS
+                  /// STATS - Total parking and all !
                   Row(
                     children: [
                       _statCard(
@@ -184,7 +182,7 @@ class _ParkingAdminDashboardState extends State<ParkingAdminDashboard> {
 
                   const SizedBox(height: 20),
 
-                  /// PARKING LIST
+                  /// PARKING LIST /////
                   const Text(
                     'Your Parkings',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -229,14 +227,19 @@ class _ParkingAdminDashboardState extends State<ParkingAdminDashboard> {
                                         },
                                         icon: Icon(Icons.edit),
                                       ),
-                                      // Icon(Icons.arrow_forward_ios, size: 16),
                                     ],
                                   ),
                                   onTap: () {
-                                    // Implement slots here
-                                    Navigator.push(context, 
-                                    MaterialPageRoute(builder: (_) => ParkingSlotsPage(parkingId: parking['id'], parkingName: parking['name'])
-                                    ));
+                                    // slots ///
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => ParkingSlotsPage(
+                                          parkingId: parking['id'],
+                                          parkingName: parking['name'],
+                                        ),
+                                      ),
+                                    );
                                   },
                                 ),
                               );
@@ -250,9 +253,7 @@ class _ParkingAdminDashboardState extends State<ParkingAdminDashboard> {
   }
 }
 
-
-//--------------Drawer----------------//
-
+// Side Drawer (Side burger menu)
 Widget _buildDrawer(BuildContext context) {
   final user = supabase.auth.currentUser;
 
@@ -284,9 +285,7 @@ Widget _buildDrawer(BuildContext context) {
             Navigator.pop(context);
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => const ParkingFormPage(),
-              ),
+              MaterialPageRoute(builder: (_) => const ParkingFormPage()),
             );
           },
         ),
@@ -318,10 +317,9 @@ Widget _buildDrawer(BuildContext context) {
           onTap: () async {
             await supabase.auth.signOut();
             if (context.mounted) {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                '/login',
-                (route) => false,
-              );
+              Navigator.of(
+                context,
+              ).pushNamedAndRemoveUntil('/login', (route) => false);
             }
           },
         ),

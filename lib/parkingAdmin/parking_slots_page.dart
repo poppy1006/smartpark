@@ -28,7 +28,7 @@ class _ParkingSlotsPageState extends State<ParkingSlotsPage> {
     fetchSlots();
   }
 
-  // ---------------- FETCH SLOTS ----------------
+  //  FETCH SLOTS 
   Future<void> fetchSlots() async {
     final res = await supabase
         .from('parking_slots')
@@ -42,7 +42,7 @@ class _ParkingSlotsPageState extends State<ParkingSlotsPage> {
     });
   }
 
-  // ---------------- STATUS COLOR ----------------
+  //  STATUS COLOR 
   Color statusColor(String status) {
     switch (status) {
       case 'free':
@@ -56,7 +56,7 @@ class _ParkingSlotsPageState extends State<ParkingSlotsPage> {
     }
   }
 
-  // ---------------- ADD / EDIT SLOT ----------------
+  //  ADD / EDIT SLOT 
   void openSlotEditor({Map<String, dynamic>? slot}) {
     final codeController =
         TextEditingController(text: slot?['slot_code'] ?? '');
@@ -147,7 +147,7 @@ class _ParkingSlotsPageState extends State<ParkingSlotsPage> {
     );
   }
 
-  // ---------------- DELETE SLOT ----------------
+  //  DELETE SLOT 
   Future<void> deleteSlot(String id) async {
     await supabase.from('parking_slots').delete().eq('id', id);
     fetchSlots();
@@ -176,7 +176,7 @@ class _ParkingSlotsPageState extends State<ParkingSlotsPage> {
     );
   }
 
-  // ---------------- UI ----------------
+  //  UI //
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:smartparking/superAdmin/parkinga_admins_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'users_page.dart';
-
 
 final supabase = Supabase.instance.client;
 
@@ -25,12 +23,13 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
   }
 
   Future<void> _loadStats() async {
-    final users =
-        await supabase.from('users').select('id').count();
-    final bookings =
-        await supabase.from('bookings').select('id').count();
-    final parkings =
-        await supabase.from('parkings').select('id').eq('is_active', true).count();
+    final users = await supabase.from('users').select('id').count();
+    final bookings = await supabase.from('bookings').select('id').count();
+    final parkings = await supabase
+        .from('parkings')
+        .select('id')
+        .eq('is_active', true)
+        .count();
 
     setState(() {
       totalUsers = users.count ?? 0;
@@ -47,9 +46,10 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
           children: [
             Icon(icon, size: 40),
             const SizedBox(height: 10),
-            Text(value,
-                style:
-                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            Text(
+              value,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
             Text(title),
           ],
         ),
@@ -79,14 +79,6 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
             ),
             child: statCard("Manage Users", "OPEN", Icons.manage_accounts),
           ),
-
-          // GestureDetector(
-          //   onTap: () => Navigator.push(
-          //     context,
-          //     MaterialPageRoute(builder: (_) => const ParkingAdminsPage()),
-          //   ),
-          //   child: statCard("Parking Admins", "OPEN", Icons.admin_panel_settings),
-          // ),
         ],
       ),
     );

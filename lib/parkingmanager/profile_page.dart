@@ -265,7 +265,7 @@ class ManagerProfilePage extends StatelessWidget {
 
           const Spacer(),
 
-          // ================= LOGOUT =================
+          //  LOGOUT
           Padding(
             padding: const EdgeInsets.all(16),
             child: SizedBox(
@@ -292,7 +292,7 @@ class ManagerProfilePage extends StatelessWidget {
     );
   }
 
-  // ================= REUSABLE TILE =================
+  //  REUSABLE TILE  
   Widget _infoTile({
     required IconData icon,
     required String label,

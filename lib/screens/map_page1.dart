@@ -1,3 +1,4 @@
+//EXAMPLE MAP PAGE !
 // ANDROID – Live location update every 5 seconds
 // Blue transparent accuracy circle around current location
 // flutter_map: ^6.x
@@ -65,7 +66,7 @@ class _MapScreen1State extends State<MapScreen1> {
     super.dispose();
   }
 
-  /// 🔥 LIVE LOCATION EVERY 5 SECONDS
+  ///LIVE LOCATION EVERY 5 SECONDS
   Future<void> _startLiveLocation() async {
     if (!await Geolocator.isLocationServiceEnabled()) {
       await Geolocator.openLocationSettings();
@@ -256,7 +257,7 @@ class _MapScreen1State extends State<MapScreen1> {
                     ),
                   ),
 
-                  /// 🔵 CURRENT LOCATION DOT
+                  /// CURRENT LOCATION DOT
                   if (_currentLocation != null)
                     Marker(
                       point: _currentLocation!,
