@@ -28,7 +28,9 @@ class _ParkingSlotsPageState extends State<ParkingSlotsPage> {
     fetchSlots();
   }
 
-  //  FETCH SLOTS 
+  // --------------------------------------------------
+  // FETCH SLOTS
+  // --------------------------------------------------
   Future<void> fetchSlots() async {
     final res = await supabase
         .from('parking_slots')
@@ -42,7 +44,9 @@ class _ParkingSlotsPageState extends State<ParkingSlotsPage> {
     });
   }
 
-  //  STATUS COLOR 
+  // --------------------------------------------------
+  // STATUS COLOR
+  // --------------------------------------------------
   Color statusColor(String status) {
     switch (status) {
       case 'free':
@@ -56,10 +60,11 @@ class _ParkingSlotsPageState extends State<ParkingSlotsPage> {
     }
   }
 
-  //  ADD / EDIT SLOT 
+  // --------------------------------------------------
+  // CREATE / EDIT SLOT
+  // --------------------------------------------------
   void openSlotEditor({Map<String, dynamic>? slot}) {
-    final codeController =
-        TextEditingController(text: slot?['slot_code'] ?? '');
+    final codeCtrl = TextEditingController(text: slot?['slot_code'] ?? '');
     String status = slot?['status'] ?? 'free';
 
     showModalBottomSheet(
@@ -81,64 +86,88 @@ class _ParkingSlotsPageState extends State<ParkingSlotsPage> {
             children: [
               Text(
                 slot == null ? 'Create Slot' : 'Edit Slot',
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              const SizedBox(height: 16),
+
+              const SizedBox(height: 12),
 
               TextField(
-                controller: codeController,
+                controller: codeCtrl,
+                textCapitalization: TextCapitalization.characters,
                 decoration: const InputDecoration(
-                  labelText: 'Slot Code (A1, B2)',
+                  labelText: 'Slot Code (A1)',
                   border: OutlineInputBorder(),
                 ),
               ),
 
               const SizedBox(height: 12),
 
-              DropdownButtonFormField<String>(
+              DropdownButtonFormField(
                 value: status,
                 items: const [
-                  DropdownMenuItem(value: 'free', child: Text('FREE')),
-                  DropdownMenuItem(value: 'occupied', child: Text('OCCUPIED')),
-                  DropdownMenuItem(value: 'reserved', child: Text('RESERVED')),
+                  DropdownMenuItem(value: 'free', child: Text("FREE")),
+                  DropdownMenuItem(value: 'occupied', child: Text("OCCUPIED")),
+                  DropdownMenuItem(value: 'reserved', child: Text("RESERVED")),
                 ],
                 onChanged: (v) => status = v!,
-                decoration: const InputDecoration(
-                  labelText: 'Status',
-                  border: OutlineInputBorder(),
-                ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
 
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    if (codeController.text.trim().isEmpty) return;
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      child: Text(slot == null ? "Create" : "Update"),
+                      onPressed: () async {
+                        if (codeCtrl.text.trim().isEmpty) return;
 
-                    if (slot == null) {
-                      await supabase
-                          .from('parking_slots')
-                          .insert({
-                            'parking_id': widget.parkingId,
-                            'slot_code': codeController.text.trim(),
-                            'status': status,
-                          })
-                          .select(); // REQUIRED
-                    } else {
-                      await supabase.from('parking_slots').update({
-                        'slot_code': codeController.text.trim(),
-                        'status': status,
-                      }).eq('id', slot['id']);
-                    }
+                        try {
+                          if (slot == null) {
+                            await supabase.from('parking_slots').insert({
+                              'parking_id': widget.parkingId,
+                              'slot_code': codeCtrl.text.trim().toUpperCase(),
+                              'status': status,
+                            });
+                          } else {
+                            await supabase
+                                .from('parking_slots')
+                                .update({
+                                  'slot_code': codeCtrl.text
+                                      .trim()
+                                      .toUpperCase(),
+                                  'status': status,
+                                })
+                                .eq('id', slot['id']);
+                          }
 
-                    Navigator.pop(context);
-                    fetchSlots();
-                  },
-                  child: Text(slot == null ? 'Create Slot' : 'Save Changes'),
-                ),
+                          Navigator.pop(context);
+                          fetchSlots();
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Slot already exists"),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+
+                  if (slot != null) ...[
+                    const SizedBox(width: 10),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        confirmDelete(slot);
+                      },
+                    ),
+                  ],
+                ],
               ),
             ],
           ),
@@ -147,161 +176,229 @@ class _ParkingSlotsPageState extends State<ParkingSlotsPage> {
     );
   }
 
-  //  DELETE SLOT 
-  Future<void> deleteSlot(String id) async {
-    await supabase.from('parking_slots').delete().eq('id', id);
-    fetchSlots();
-  }
+  // --------------------------------------------------
+  // BULK CREATION
+  // --------------------------------------------------
+  void openBulkCreator() {
+    final countCtrl = TextEditingController();
+    final prefixCtrl = TextEditingController(text: "A");
 
-  void confirmDelete(Map<String, dynamic> slot) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Delete Slot'),
-        content: Text('Delete slot ${slot['slot_code']}?'),
+        title: const Text("Bulk Slot Creation"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: prefixCtrl,
+              maxLength: 1,
+              decoration: const InputDecoration(labelText: "Alphabet"),
+            ),
+            TextField(
+              controller: countCtrl,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: "Total Slots"),
+            ),
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text("Cancel"),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              deleteSlot(slot['id']);
+            child: const Text("Create"),
+            onPressed: () async {
+              try {
+                final count = int.parse(countCtrl.text);
+                final prefix = prefixCtrl.text.toUpperCase();
+
+                if (count < 10) {
+                  throw "Minimum 10 slots required";
+                }
+
+                final existing = await supabase
+                    .from('parking_slots')
+                    .select('slot_code')
+                    .eq('parking_id', widget.parkingId);
+
+                final existingCodes = existing
+                    .map((e) => e['slot_code'])
+                    .toSet();
+
+                List<Map<String, dynamic>> bulk = [];
+
+                for (int i = 1; i <= count; i++) {
+                  final code = "$prefix$i";
+                  if (!existingCodes.contains(code)) {
+                    bulk.add({
+                      'parking_id': widget.parkingId,
+                      'slot_code': code,
+                      'status': 'free',
+                    });
+                  }
+                }
+
+                if (bulk.isEmpty) {
+                  throw "All slots already exist";
+                }
+
+                await supabase.from('parking_slots').insert(bulk);
+
+                Navigator.pop(context);
+                fetchSlots();
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("${bulk.length} slots created")),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(e.toString())));
+              }
             },
-            child: const Text('Delete'),
           ),
         ],
       ),
     );
   }
 
-  //  UI //
+  // --------------------------------------------------
+  // DELETE
+  // --------------------------------------------------
+  void confirmDelete(Map slot) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Delete Slot"),
+        content: Text("Delete slot ${slot['slot_code']}?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () async {
+              await supabase
+                  .from('parking_slots')
+                  .delete()
+                  .eq('id', slot['id']);
+
+              Navigator.pop(context);
+              fetchSlots();
+            },
+            child: const Text("Delete"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --------------------------------------------------
+  // UI
+  // --------------------------------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.parkingName} Slots'),
+        title: Text("${widget.parkingName} Slots"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: openSlotEditor,
+          ),
+        ],
       ),
+
       body: loading
           ? const Center(child: CircularProgressIndicator())
-          : slots.isEmpty
-              ? _emptyState()
-              : _slotsGrid(),
-      bottomNavigationBar: _bottomActions(),
-    );
-  }
-
-  Widget _bottomActions() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 6,
-          )
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: OutlinedButton.icon(
-              icon: Icon(editMode ? Icons.check : Icons.edit),
-              label: Text(editMode ? 'Done Editing' : 'Edit Slots'),
-              onPressed: () => setState(() => editMode = !editMode),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: ElevatedButton.icon(
-              icon: const Icon(Icons.add),
-              label: const Text('Create Slot'),
-              onPressed: () => openSlotEditor(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _emptyState() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.local_parking, size: 64, color: Colors.grey),
-          SizedBox(height: 12),
-          Text('No slots created'),
-        ],
-      ),
-    );
-  }
-
-  Widget _slotsGrid() {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: GridView.builder(
-        itemCount: slots.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-        ),
-        itemBuilder: (context, index) {
-          final slot = slots[index];
-
-          return GestureDetector(
-            onTap: editMode ? () => openSlotEditor(slot: slot) : null,
-            onLongPress: editMode ? () => confirmDelete(slot) : null,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: statusColor(slot['status']),
-                  width: 2,
-                ),
+          : GridView.builder(
+              padding: const EdgeInsets.all(12),
+              itemCount: slots.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
               ),
-              child: Stack(
-                children: [
-                  Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
+              itemBuilder: (_, i) {
+                final slot = slots[i];
+
+                return GestureDetector(
+                  onTap: editMode ? () => openSlotEditor(slot: slot) : null,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: statusColor(slot['status']),
+                        width: 2,
+                      ),
+                    ),
+                    child: Stack(
                       children: [
-                        const Icon(Icons.local_parking, size: 28),
-                        const SizedBox(height: 6),
-                        Text(
-                          slot['slot_code'],
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                        Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.local_parking),
+                              const SizedBox(height: 6),
+                              Text(
+                                slot['slot_code'],
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+
+                        Positioned(
+                          top: 6,
+                          right: 6,
+                          child: Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: statusColor(slot['status']),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+
+                        if (editMode)
+                          const Positioned(
+                            bottom: 6,
+                            right: 6,
+                            child: Icon(Icons.edit, size: 16),
+                          ),
                       ],
                     ),
                   ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      width: 12,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: statusColor(slot['status']),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-                  if (editMode)
-                    const Positioned(
-                      bottom: 6,
-                      right: 6,
-                      child: Icon(Icons.delete, size: 16),
-                    ),
-                ],
+                );
+              },
+            ),
+
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                child: Text(editMode ? "Done" : "Edit Slots"),
+                onPressed: () => setState(() => editMode = !editMode),
               ),
             ),
-          );
-        },
+            const SizedBox(width: 10),
+            Expanded(
+              child: ElevatedButton(
+                child: const Text("Create Slot"),
+                onPressed: () => openBulkCreator(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

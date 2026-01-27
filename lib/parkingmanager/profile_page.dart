@@ -112,6 +112,7 @@
 import 'package:flutter/material.dart';
 import 'package:smartparking/authentication/login_page.dart';
 import 'package:smartparking/parkingAdmin/widget/bottom_app_bar.dart';
+import 'package:smartparking/parkingmanager/widget/bottom_appbar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ManagerProfilePage extends StatelessWidget {
@@ -144,7 +145,7 @@ class ManagerProfilePage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      bottomNavigationBar: ParkingAdminAppBar(),
+      bottomNavigationBar: ParkingManagerAppBar(),
 
       body: Column(
         children: [
