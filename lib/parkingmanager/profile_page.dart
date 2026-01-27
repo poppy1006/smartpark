@@ -4,8 +4,8 @@
 // import 'package:smartparking/user/widgets/bottom_app_bar.dart';
 // import 'package:supabase_flutter/supabase_flutter.dart';
 
-// class ParkingAdminProfile extends StatelessWidget {
-//   const ParkingAdminProfile({super.key});
+// class ManagerProfilePage extends StatelessWidget {
+//   const ManagerProfilePage({super.key});
 
 //   String _getInitial(String? name) {
 //     if (name == null || name.isEmpty) return '?';
@@ -26,9 +26,9 @@
 //   Widget build(BuildContext context) {
 //     final user = Supabase.instance.client.auth.currentUser;
 
-//     final name = user?.userMetadata?['full_name'] ?? 'User';
+//     final name = user?.userMetadata?['full_name'] ?? 'Parking Manager';
 //     final email = user?.email ?? 'No email';
-//     final role = user?.userMetadata?['role'] ?? 'user';
+//     final role = user?.userMetadata?['role'] ?? 'Manager';
 
 //     return Scaffold(
 //       appBar: AppBar(
@@ -114,8 +114,8 @@ import 'package:smartparking/authentication/login_page.dart';
 import 'package:smartparking/parkingAdmin/widget/bottom_app_bar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class ParkingAdminProfile extends StatelessWidget {
-  const ParkingAdminProfile({super.key});
+class ManagerProfilePage extends StatelessWidget {
+  const ManagerProfilePage({super.key});
 
   String _getInitial(String? name) {
     if (name == null || name.isEmpty) return '?';

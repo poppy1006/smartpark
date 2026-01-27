@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:smartparking/parkingmanager/widget/bottom_appbar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final supabase = Supabase.instance.client;
@@ -122,7 +123,7 @@ class _ParkingManagerDashboardState
         title: const Text("Parking Manager"),
         backgroundColor: Colors.red,
       ),
-
+      bottomNavigationBar: ParkingManagerAppBar(),
       body: !_permissionGranted
           ? Center(
               child: Column(
