@@ -488,7 +488,7 @@ class _MapScreen1State extends State<UserDashboardPage> {
             options: MapOptions(
               initialCenter:
                   const LatLng(9.9312, 76.2673),
-              initialZoom: 10,
+              initialZoom: 8,
               onMapReady: () {
                 _mapReady = true;
                 if (_currentLocation != null) {
