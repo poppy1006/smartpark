@@ -31,6 +31,9 @@
 //   DateTime? _qrExpiresAt;
 //   Timer? _qrTimer;
 
+//   /// ✅ AUTO CENTER TIMER
+//   Timer? _autoCenterTimer;
+
 //   @override
 //   void initState() {
 //     super.initState();
@@ -38,12 +41,19 @@
 //     _startLiveLocation();
 //     _fetchParkings();
 //     _fetchActiveQr();
+
+//     // ✅ AUTO MOVE TO CURRENT LOCATION EVERY 3 SECONDS
+//     _autoCenterTimer =
+//         Timer.periodic(const Duration(seconds: 3), (_) {
+//       _goToCurrentLocation();
+//     });
 //   }
 
 //   @override
 //   void dispose() {
 //     _positionStream?.cancel();
 //     _qrTimer?.cancel();
+//     _autoCenterTimer?.cancel();
 //     super.dispose();
 //   }
 
@@ -62,7 +72,8 @@
 //         .maybeSingle();
 
 //     if (res != null && res['qr_expires_at'] != null) {
-//       _qrExpiresAt = DateTime.parse(res['qr_expires_at']).toLocal();
+//       _qrExpiresAt =
+//           DateTime.parse(res['qr_expires_at']).toLocal();
 
 //       _qrTimer?.cancel();
 //       _qrTimer = Timer.periodic(
@@ -88,7 +99,8 @@
 //           .eq('is_active', true);
 
 //       final data = response as List;
-//       final parkings = data.map((e) => ParkingModel.fromMap(e)).toList();
+//       final parkings =
+//           data.map((e) => ParkingModel.fromMap(e)).toList();
 
 //       setState(() {
 //         _parkings = parkings;
@@ -104,15 +116,17 @@
 //   Future<void> _startLiveLocation() async {
 //     if (!await Geolocator.isLocationServiceEnabled()) return;
 
-//     LocationPermission permission = await Geolocator.checkPermission();
+//     LocationPermission permission =
+//         await Geolocator.checkPermission();
 
 //     if (permission == LocationPermission.denied) {
 //       permission = await Geolocator.requestPermission();
 //     }
 
 //     if (permission == LocationPermission.denied ||
-//         permission == LocationPermission.deniedForever)
+//         permission == LocationPermission.deniedForever) {
 //       return;
+//     }
 
 //     _positionStream =
 //         Geolocator.getPositionStream(
@@ -121,16 +135,21 @@
 //             distanceFilter: 0,
 //           ),
 //         ).listen((position) {
-//           final latLng = LatLng(position.latitude, position.longitude);
+//           final latLng =
+//               LatLng(position.latitude, position.longitude);
 
 //           setState(() => _currentLocation = latLng);
 
 //           if (_mapReady) {
-//             _mapController.move(latLng, _mapController.camera.zoom);
+//             _mapController.move(
+//               latLng,
+//               _mapController.camera.zoom,
+//             );
 //           }
 //         });
 //   }
 
+//   // MOVE MAP VIEW
 //   void _goToCurrentLocation() {
 //     if (_currentLocation != null && _mapReady) {
 //       _mapController.move(_currentLocation!, 16);
@@ -138,6 +157,7 @@
 //   }
 
 //   // UI
+
 //   @override
 //   Widget build(BuildContext context) {
 //     final now = DateTime.now();
@@ -145,7 +165,8 @@
 //         ? _qrExpiresAt!.difference(now)
 //         : null;
 
-//     final showQrTimer = remaining != null && remaining.inSeconds > 0;
+//     final showQrTimer =
+//         remaining != null && remaining.inSeconds > 0;
 
 //     return Scaffold(
 //       bottomNavigationBar: const UserBottomAppBar(),
@@ -155,23 +176,27 @@
 //       ),
 //       body: Stack(
 //         children: [
-//           // MAP
+//           // ---------------- MAP ----------------
 //           FlutterMap(
 //             mapController: _mapController,
 //             options: MapOptions(
-//               initialCenter: const LatLng(9.9312, 76.2673),
-//               initialZoom: 10,
+//               initialCenter:
+//                   const LatLng(9.9312, 76.2673),
+//               initialZoom: 8,
 //               onMapReady: () {
 //                 _mapReady = true;
 //                 if (_currentLocation != null) {
-//                   _mapController.move(_currentLocation!, 16);
+//                   _mapController.move(
+//                       _currentLocation!, 16);
 //                 }
 //               },
 //             ),
 //             children: [
 //               TileLayer(
-//                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-//                 userAgentPackageName: 'com.parkingmanager.app',
+//                 urlTemplate:
+//                     'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+//                 userAgentPackageName:
+//                     'com.parkingmanager.app',
 //               ),
 
 //               if (_currentLocation != null)
@@ -182,7 +207,8 @@
 //                       radius: 60,
 //                       useRadiusInMeter: true,
 //                       color: Colors.blue.withOpacity(0.15),
-//                       borderColor: Colors.blue.withOpacity(0.4),
+//                       borderColor:
+//                           Colors.blue.withOpacity(0.4),
 //                       borderStrokeWidth: 2,
 //                     ),
 //                   ],
@@ -198,21 +224,28 @@
 //                       child: Column(
 //                         children: [
 //                           Container(
-//                             padding: const EdgeInsets.all(6),
+//                             padding:
+//                                 const EdgeInsets.all(6),
 //                             decoration: BoxDecoration(
 //                               color: Colors.white,
-//                               borderRadius: BorderRadius.circular(8),
+//                               borderRadius:
+//                                   BorderRadius.circular(8),
 //                               boxShadow: const [
-//                                 BoxShadow(color: Colors.black26, blurRadius: 4),
+//                                 BoxShadow(
+//                                   color: Colors.black26,
+//                                   blurRadius: 4,
+//                                 ),
 //                               ],
 //                             ),
 //                             child: Text(
 //                               parking.name,
 //                               maxLines: 1,
-//                               overflow: TextOverflow.ellipsis,
+//                               overflow:
+//                                   TextOverflow.ellipsis,
 //                               style: const TextStyle(
 //                                 fontSize: 12,
-//                                 fontWeight: FontWeight.w600,
+//                                 fontWeight:
+//                                     FontWeight.w600,
 //                               ),
 //                             ),
 //                           ),
@@ -235,7 +268,9 @@
 //                         decoration: BoxDecoration(
 //                           color: Colors.blue,
 //                           shape: BoxShape.circle,
-//                           border: Border.all(color: Colors.white, width: 3),
+//                           border: Border.all(
+//                               color: Colors.white,
+//                               width: 3),
 //                         ),
 //                       ),
 //                     ),
@@ -244,7 +279,7 @@
 //             ],
 //           ),
 
-//           // FLOATING QR TIMER
+//           // QR TIMER 
 //           if (showQrTimer)
 //             Positioned(
 //               top: 12,
@@ -254,24 +289,29 @@
 //                 onTap: () {
 //                   Navigator.push(
 //                     context,
-//                     MaterialPageRoute(builder: (_) => const MyBookingsPage()),
+//                     MaterialPageRoute(
+//                         builder: (_) =>
+//                             const MyBookingsPage()),
 //                   );
 //                 },
 //                 child: Container(
-//                   padding: const EdgeInsets.symmetric(
-//                     horizontal: 16,
-//                     vertical: 12,
-//                   ),
+//                   padding:
+//                       const EdgeInsets.symmetric(
+//                           horizontal: 16,
+//                           vertical: 12),
 //                   decoration: BoxDecoration(
 //                     color: Colors.black87,
-//                     borderRadius: BorderRadius.circular(30),
+//                     borderRadius:
+//                         BorderRadius.circular(30),
 //                   ),
 //                   child: Row(
-//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                     mainAxisAlignment:
+//                         MainAxisAlignment.spaceBetween,
 //                     children: [
 //                       const Text(
 //                         "ENTRY QR expires in",
-//                         style: TextStyle(color: Colors.white),
+//                         style:
+//                             TextStyle(color: Colors.white),
 //                       ),
 //                       Text(
 //                         _formatCountdown(remaining),
@@ -280,21 +320,23 @@
 //                           fontWeight: FontWeight.bold,
 //                         ),
 //                       ),
-//                       const Icon(Icons.qr_code, color: Colors.white),
+//                       const Icon(Icons.qr_code,
+//                           color: Colors.white),
 //                     ],
 //                   ),
 //                 ),
 //               ),
 //             ),
 
-//           // LOCATE BUTTON
+//           // LOCATE BUTTON 
 //           Positioned(
 //             bottom: 20,
 //             right: 20,
 //             child: FloatingActionButton(
 //               backgroundColor: Colors.white,
 //               onPressed: _goToCurrentLocation,
-//               child: const Icon(Icons.my_location, color: Colors.blue),
+//               child: const Icon(Icons.my_location,
+//                   color: Colors.blue),
 //             ),
 //           ),
 //         ],
@@ -339,6 +381,40 @@ class _MapScreen1State extends State<UserDashboardPage> {
 
   /// ✅ AUTO CENTER TIMER
   Timer? _autoCenterTimer;
+
+  // --------------------------------------------------
+  // LOCATION ENABLE POPUP
+  // --------------------------------------------------
+
+  Future<void> _showLocationDialog() async {
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        title: const Text("Location Required"),
+        content: const Text(
+          "Please enable location services to show your position and find nearby parking.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await Geolocator.openLocationSettings();
+            },
+            child: const Text("Enable Location"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --------------------------------------------------
 
   @override
   void initState() {
@@ -418,9 +494,15 @@ class _MapScreen1State extends State<UserDashboardPage> {
     }
   }
 
-  // LIVE LOCATION
+  // LIVE LOCATION (UPDATED)
   Future<void> _startLiveLocation() async {
-    if (!await Geolocator.isLocationServiceEnabled()) return;
+    bool serviceEnabled =
+        await Geolocator.isLocationServiceEnabled();
+
+    if (!serviceEnabled) {
+      _showLocationDialog();
+      return;
+    }
 
     LocationPermission permission =
         await Geolocator.checkPermission();
@@ -431,6 +513,7 @@ class _MapScreen1State extends State<UserDashboardPage> {
 
     if (permission == LocationPermission.denied ||
         permission == LocationPermission.deniedForever) {
+      _showLocationDialog();
       return;
     }
 
@@ -650,3 +733,4 @@ class _MapScreen1State extends State<UserDashboardPage> {
     );
   }
 }
+ 

@@ -9,9 +9,11 @@ create table public.users (
   phone text null,
   is_active boolean null default true,
   created_at timestamp with time zone null default now(),
+  parkingadmin_id uuid null,
   constraint users_pkey primary key (id),
   constraint users_email_key unique (email),
   constraint users_id_fkey foreign KEY (id) references auth.users (id) on delete CASCADE,
+  constraint users_parkingadmin_id_fkey foreign KEY (parkingadmin_id) references users (id),
   constraint users_role_check check (
     (
       role = any (
@@ -127,3 +129,9 @@ create table public.payments (
     )
   )
 ) TABLESPACE pg_default;
+
+
+
+
+/// Change time zone 
+ALTER DATABASE postgres SET timezone TO 'Asia/Kolkata';
